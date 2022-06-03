@@ -9,8 +9,11 @@ def index(request: HttpRequest):
 
         if form.is_valid():
             print("Form is valid")
+            print(form.cleaned_data)
 
         else:
             print("Invalid form", request.POST)
 
-    return render(request, 'index.html')
+    else:
+        form = LoginForm()
+        return render(request, 'index.html', { 'login_form': form })
