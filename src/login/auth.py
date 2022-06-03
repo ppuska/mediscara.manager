@@ -1,15 +1,17 @@
+import logging
 import os
 from typing import Any, Optional
-import logging
-
-from django.contrib.auth.models import AbstractBaseUser, User
-from django.contrib.auth.backends import BaseBackend
-from django.http import HttpRequest
 
 import requests
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth.models import AbstractBaseUser
+from django.http import HttpRequest
 from requests.auth import HTTPBasicAuth
 
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
+
+User = get_user_model()
 
 
 class KeyRockBackend(BaseBackend):
@@ -17,38 +19,40 @@ class KeyRockBackend(BaseBackend):
 
         keyrock_url = os.getenv("KEYROCK_URL")
 
-        if 'email' in kwargs and 'password' in kwargs:
+        if "email" in kwargs and "password" in kwargs:
             # email and password login method
-            email = kwargs['email']
-            password = kwargs['password']
+            email = kwargs["email"]
+            password = kwargs["password"]
 
             headers = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/x-www-form-urlencoded',
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
             }
 
-            auth = HTTPBasicAuth(os.getenv('CLIENT_ID'), os.getenv('CLIENT_SECRET'))
+            auth = HTTPBasicAuth(os.getenv("CLIENT_ID"), os.getenv("CLIENT_SECRET"))
 
-            data = f'username={email}&password={password}&grant_type=password'
+            data = f"username={email}&password={password}&grant_type=password"
 
-            url = f'{keyrock_url}/oauth2/token'
+            url = f"{keyrock_url}/oauth2/token"
 
             response = requests.post(url=url, headers=headers, data=data, auth=auth)
 
-            print(response.content.decode('utf-8'))
+            print(response.content.decode("utf-8"))
 
-        elif 'token' in kwargs:
+            return None
+
+        elif "token" in kwargs:
             # token login method
-            token = kwargs['token']
+            token = kwargs["token"]
 
-            response = requests.get(f'{keyrock_url}/user', params={'access_token': token}).json()
+            response = requests.get(f"{keyrock_url}/user", params={"access_token": token}).json()
 
             assert isinstance(response, dict)
 
             try:
-                username = response['username']
-                email = response['email']
-                display_name = response['displayName']
+                username = response["username"]
+                email = response["email"]
+                display_name = response["displayName"]
 
             except KeyError:
                 logger.warning("Got a KeyError while parsing user information")
@@ -58,6 +62,7 @@ class KeyRockBackend(BaseBackend):
                 user = User.objects.get(username=username)
 
             except User.DoesNotExist:
+                logger.info("User '%s' does not exist in db, creating user...", username)
                 user = User(username=username)
                 user.email = email
                 user.first_name = display_name
@@ -67,4 +72,10 @@ class KeyRockBackend(BaseBackend):
 
         else:
             logger.warning("Email or password is missing from KeyRock authentication call")
+            return None
+
+    def get_user(self, user_id: int) -> Optional[AbstractBaseUser]:
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
             return None
