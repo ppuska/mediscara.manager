@@ -1,7 +1,25 @@
-from django.http import HttpRequest
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+import logging
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate, login
 
-@login_required
+logger = logging.getLogger('django')
+
 def index(request: HttpRequest):
-    pass
+    token = request.GET.get('token')
+
+    if token is not None:
+        logger.info("Got token, authenticating user...")
+        user = authenticate(token=token)
+
+        if user is not None:
+            login(request ,user)
+
+            logger.info("Authentication successful")
+            return HttpResponse("User logged in")
+
+        logger.info("Authentication error")
+        return HttpResponse("User not logged in")
+
+    logger.info("No token found at /home/ redirecting to /login/")
+    return redirect('/login/')

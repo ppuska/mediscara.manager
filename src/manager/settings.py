@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()  # loads the items from the .env file to the environment variables
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,6 +39,8 @@ INSTALLED_APPS = [
     'home',
     'login',
 
+    'crispy_forms',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -55,6 +61,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'manager.urls'
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'  # CRISPY FORMS template packs
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'login.auth.KeyRockBackend',
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -70,6 +83,20 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'django': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
 WSGI_APPLICATION = 'manager.wsgi.application'
 

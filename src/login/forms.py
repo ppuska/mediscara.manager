@@ -1,7 +1,7 @@
 from django import forms
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Button
 
 class LoginForm(forms.Form):
     email = forms.EmailField()
@@ -11,4 +11,5 @@ class LoginForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Login'))
+        self.helper.add_input(Submit('submit', 'login'))
+        self.helper.add_input(Button('use keyrock', "Button"))
