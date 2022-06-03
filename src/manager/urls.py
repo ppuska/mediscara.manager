@@ -22,6 +22,6 @@ urlpatterns = [
     path("home/", include("home.urls")),
     path("login/", include("login.urls")),
     path("logout/", include("logout.urls")),
-    path("collaborative/", include("collaborative.urls")),
+    path("editor/", include("editor.urls")),
     path("admin/", admin.site.urls),
 ]

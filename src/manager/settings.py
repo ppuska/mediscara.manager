@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "home",
     "login",
     "logout",
-    "collaborative",
+    "editor",
     "crispy_forms",
     "django.contrib.admin",
     "django.contrib.auth",
