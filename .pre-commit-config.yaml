@@ -51,5 +51,8 @@ repos:
       types: [python]
       args:
         [
-          --rcfile=.pylintrc
+          --max-line-length=120,
+          --fail-under=8,
+          --disable=missing-module-docstring,
+          --disable=unused-import
         ]

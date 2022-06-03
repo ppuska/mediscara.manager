@@ -15,7 +15,10 @@ User = get_user_model()
 
 
 class KeyRockBackend(BaseBackend):
+    """Custom backend model for managing authentication with the KeyRock IDM"""
+
     def authenticate(self, _: Optional[HttpRequest], **kwargs: Any) -> Optional[AbstractBaseUser]:
+        """Method to authenticate the user based on either email-password (not working) or login token"""
 
         keyrock_url = os.getenv("KEYROCK_URL")
 
@@ -41,7 +44,7 @@ class KeyRockBackend(BaseBackend):
 
             return None
 
-        elif "token" in kwargs:
+        if "token" in kwargs:
             # token login method
             token = kwargs["token"]
 
@@ -70,11 +73,11 @@ class KeyRockBackend(BaseBackend):
 
             return user
 
-        else:
-            logger.warning("Email or password is missing from KeyRock authentication call")
-            return None
+        logger.warning("Email or password is missing from KeyRock authentication call")
+        return None
 
     def get_user(self, user_id: int) -> Optional[AbstractBaseUser]:
+        """Fetch the user based on their user id"""
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
