@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login</title>
+
+        <!-- CSS only bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="bg-white border rounded-5 m-3">
+            <section class="w-100 p-4 d-flex justify-content-center pb-4">
+                <form style="width: 22rem;" method="post">
+                    {% csrf_token %}
+                    <h2 class="mb-4">Log in to view production</h2>
+
+                    <!-- Email input -->
+                    <div class="form-floating mb-4">
+                      <input type="email" id="email_field" class="form-control" />
+                      <label class="form-label" for="email_field" style="margin-left: 0px;">Email address</label>
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-floating mb-4">
+                      <input type="password" id="password_field" class="form-control" />
+                      <label class="form-label" for="password_field">Password</label>
+                    </div>
+
+
+                    <!-- Submit button -->
+                    <button type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
+                  </form>
+            </div>
+            </section>
+    </body>
+</html>
