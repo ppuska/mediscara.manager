@@ -10,6 +10,7 @@ from .forms import LoginForm
 
 
 def index(request: HttpRequest):
+    """Main index page of the Home screen"""
     # check if the user is authenticated or not
     if request.user.is_authenticated:
         return redirect("home/")  # redirect them back to home

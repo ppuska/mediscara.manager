@@ -22,7 +22,7 @@ def index(request: HttpRequest):
             login(request, user)
 
             logger.info("Authentication successful")
-            return render(request, "home/index.html")
+            return render(request, "home/index.html", {"user": user})
 
         logger.info("Authentication error")
         return redirect(settings.LOGIN_URL)

@@ -24,6 +24,7 @@
           </li>
         </ul>
         {% if user.is_authenticated %}
+        <span class="navbar-text">Signed in as {{ user }}</span>
         <a class="btn btn-light" href="/logout/">Sign Out</a>
         {% endif %}
       </div>

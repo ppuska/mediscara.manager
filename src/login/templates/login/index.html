@@ -8,14 +8,12 @@
   <section class="w-100 p-4 d-flex justify-content-center pb-4">
     <form style="width: 22rem;" method="post">
       <h2 class="mb-4">Log in to view production</h2>
-
       {% csrf_token %}
-      {{ login_form|crispy }}
-
-      <!-- Submit button -->
-      <button type="submit" class="btn btn-primary btn-block mb-4">Sign in</button>
-      <a class="btn btn-primary btn-block mb-4" href="{{ keyrock_url }}">Sign in using KeyRock</a>
+      {% crispy login_form %}
     </form>
+  </section>
+  <section class="w-100 p-4 d-flex justify-content-center pb-4">
+    <a class="btn btn-primary btn-block mb-4" style="width: 22rem;" href="{{ keyrock_url }}">Sign in using KeyRock</a>
   </section>
 </div>
 

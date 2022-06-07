@@ -5,11 +5,17 @@
 {% block editor_content %}
 {% endblock %}
 
+{% load crispy_forms_tags %}
+
 <nav class="navbar fixed-bottom navbar-expand-lg navbar-dark bg-dark">
-    <h1 class="navbar-brand">Editor Mode</h1>
     <div class="container">
+        <h1 class="navbar-brand">Editor Mode</h1>
         <div class="navbar navbar-collapse">
-            <ul class="navbar-nav me-auto">
+            <form class="navbar-form form-inline" method="post">
+                {% csrf_token %}
+                {% crispy collab_form %}
+            </form>
+            <!--<ul class="navbar-nav me-auto">
                 <li class="nav-item mx-1 mb-2 mb-lg-0">
                     <form class="navbar-form" method="post">
                         <input type="text" class="form-control" placeholder="Incubator type">
@@ -21,8 +27,8 @@
                     </form>
                 </li>
             </ul>
+        </div> -->
+            <!-- <button class="btn btn-primary btn-light" type="submit">Add new oder</button> -->
         </div>
-        <button class="btn btn-primary btn-light" type="submit">Add new oder</button>
-    </div>
 </nav>
 {% endblock %}
