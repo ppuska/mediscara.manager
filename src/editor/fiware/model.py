@@ -3,6 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import ClassVar, List
 
 logger = logging.getLogger("django")
@@ -14,14 +15,38 @@ class ProductionOrder(ABC):
 
     type: ClassVar[str] = "order"
 
+    created: str = field(init=False)
+    active: bool = field(default=False)
+
+    def __post_init__(self):
+        self.created = datetime.now().strftime("%y.%m.%d %H:%M:%S")
+
     @abstractmethod
     def to_ngsi(self) -> dict:
         """Converts the class to its NGSi v2 formatted dict representation"""
+        return {
+            "type": self.type,
+            "value": {
+                "created": {"type": "Text", "value": self.created},
+                "active": {"type": "Bool", "value": self.active},
+            },
+        }
 
     @classmethod
     @abstractmethod
     def from_ngsi(cls, entity: dict):
         """Attempts to create a container from the NGSi v2 data"""
+        order = cls()
+
+        try:
+            order.created = entity["value"]["created"]["value"]
+            order.active = entity["value"]["active"]["value"]
+
+        except KeyError as error:
+            logger.warning("Errors in incoming JSON object: %s", str(entity))
+            raise KeyError from error
+
+        return order
 
     @staticmethod
     def ngsi_type(attribute) -> str:
@@ -56,11 +81,27 @@ class CollaborativeOrder(ProductionOrder):
     count: int = field(default=0)
 
     def to_ngsi(self) -> dict:
-        raise NotImplementedError()
+        ngsi_dict = super().to_ngsi()
+        ngsi_dict["value"]["incubator_type"] = {
+            "type": self.ngsi_type(self.incubator_type),
+            "value": self.incubator_type,
+        }
+        ngsi_dict["value"]["count"] = {"type": self.ngsi_type(self.count), "value": self.count}
+        return ngsi_dict
 
     @classmethod
     def from_ngsi(cls, entity: dict):
-        raise NotImplementedError()
+
+        try:
+            order = super().from_ngsi(entity=entity)
+            order.incubator_type = str(entity["value"]["incubator_type"]["value"])
+            order.count = int(entity["value"]["count"]["value"])
+
+        except KeyError as error:
+            logger.warning("Errors in incoming JSON object: %s", str(entity))
+            raise KeyError from error
+
+        return order
 
 
 @dataclass

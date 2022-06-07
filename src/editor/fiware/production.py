@@ -51,11 +51,34 @@ class Production:
 
         return self.__fiware.update_entity_append(container.to_ngsi())
 
-    def load_production_orders(self, container_id: str):
+    def load_production_orders(self, container_id: str) -> Container:
 
-        entities = self.__fiware.get_entity(entity_id=container_id)
+        entity = self.__fiware.get_entity(entity_id=container_id)
 
-        if entities is None:
-            return []
+        if entity is None:
+            container = Container()
+            container.type = container_id
+            return container
 
-        return Container.from_ngsi(entities)
+        return Container.from_ngsi(entity)
+
+    def delete_production_order(self, container_id: str, created: str) -> bool:
+
+        entity = self.__fiware.get_entity(entity_id=container_id)
+
+        order_list = entity["order_list"]["value"]
+        new_order_list = order_list
+
+        assert isinstance(order_list, list)
+
+        print(new_order_list)
+
+        for order in order_list:
+            print(order["value"]["created"]["value"], created, order["value"]["created"]["value"] == created)
+            if order["value"]["created"]["value"] == created:
+                new_order_list.remove(order)  # remove the given order
+
+        print(new_order_list)
+        entity["order_list"]["value"] = new_order_list  # write back the updated order list
+
+        return self.__fiware.replace_entity(entity=entity)  # replace the updated entity

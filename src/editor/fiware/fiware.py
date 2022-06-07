@@ -90,6 +90,18 @@ class FIWARE:
         logging.debug("Unable to update entity '%s'. (response %s)", entity_id, response.content)
         return False
 
+    def replace_entity(self, entity: dict) -> bool:
+        """Replaces the entity with the given data"""
+
+        data = {"actionType": "REPLACE", "entities": [entity]}
+
+        response = requests.post(f"{self.__server_url}/v2/op/update", json=data)
+
+        if response.status_code == StatusCodes.NO_CONTENT.value:
+            return True
+
+        return False
+
     def update_entity_append(self, entity: dict):
         """Attempts to update the entity using the append update action
         Args:
