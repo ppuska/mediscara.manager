@@ -1,7 +1,8 @@
 import os
 from urllib.parse import urlencode
 
-from django.contrib.auth import authenticate
+from django.conf import settings
+from django.contrib.auth import authenticate, login
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from requests import Request
@@ -25,16 +26,24 @@ def index(request: HttpRequest):
             user = authenticate(email=email, password=password)
 
             if user is not None:
-                return redirect(request.GET.get("next"))
+                login(request, user)
+
+                redirect_to = request.GET.get("next")
+
+                if redirect_to is None:
+                    redirect_to = "/home/"
+
+                return redirect(redirect_to)
 
     # create context for keyrock auth request
     keyrock_url = f'{os.getenv("KEYROCK_URL")}/oauth2/authorize'
+    server_ip = os.getenv("HOST_IP")
 
     params = {
         "response_type": "token",
         "client_id": os.getenv("CLIENT_ID"),
         "state": "xyz",
-        "redirect_uri": "http://localhost:8000/home",
+        "redirect_uri": f"{server_ip}:8000/home",
     }
 
     keyrock = Request("POST", url=keyrock_url, params=urlencode(params, safe="/:")).prepare()
@@ -43,6 +52,6 @@ def index(request: HttpRequest):
     form = LoginForm()
 
     # create context
-    context = {"login_form": form, "keyrock_url": keyrock.url}
+    context = {"login_form": form, "keyrock_url": keyrock.url, "grafana_url": f"{server_ip}:3000"}
 
     return render(request, "login/index.html", context)

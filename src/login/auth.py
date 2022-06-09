@@ -17,10 +17,10 @@ User = get_user_model()
 class KeyRockBackend(BaseBackend):
     """Custom backend model for managing authentication with the KeyRock IDM"""
 
+    keyrock_url = os.getenv("KEYROCK_URL")
+
     def authenticate(self, _: Optional[HttpRequest], **kwargs: Any) -> Optional[AbstractBaseUser]:
         """Method to authenticate the user based on either email-password (not working) or login token"""
-
-        keyrock_url = os.getenv("KEYROCK_URL")
 
         if "email" in kwargs and "password" in kwargs:
             # email and password login method
@@ -36,11 +36,16 @@ class KeyRockBackend(BaseBackend):
 
             data = f"username={email}&password={password}&grant_type=password"
 
-            url = f"{keyrock_url}/oauth2/token"
+            url = f"{KeyRockBackend.keyrock_url}/oauth2/token"
 
-            response = requests.post(url=url, headers=headers, data=data, auth=auth)
+            response = requests.post(url=url, headers=headers, data=data, auth=auth).json()
 
-            print(response.content.decode("utf-8"))
+            assert isinstance(response, dict)
+
+            token = response.get("access_token")
+
+            if token is not None:
+                return self.__get_user_from_access_token(access_token=token)
 
             return None
 
@@ -48,33 +53,37 @@ class KeyRockBackend(BaseBackend):
             # token login method
             token = kwargs["token"]
 
-            response = requests.get(f"{keyrock_url}/user", params={"access_token": token}).json()
-
-            assert isinstance(response, dict)
-
-            try:
-                username = response["username"]
-                email = response["email"]
-                display_name = response["displayName"]
-
-            except KeyError:
-                logger.warning("Got a KeyError while parsing user information")
-                return None
-
-            try:
-                user = User.objects.get(username=username)
-
-            except User.DoesNotExist:
-                logger.info("User '%s' does not exist in db, creating user...", username)
-                user = User(username=username)
-                user.email = email
-                user.first_name = display_name
-                user.save()
-
-            return user
+            return self.__get_user_from_access_token(access_token=token)
 
         logger.warning("Email or password is missing from KeyRock authentication call")
         return None
+
+    def __get_user_from_access_token(self, access_token: str):
+        """Gets the user informaion such as username and email from the IDM via the access token"""
+        response = requests.get(f"{KeyRockBackend.keyrock_url}/user", params={"access_token": access_token}).json()
+
+        assert isinstance(response, dict)
+
+        try:
+            username = response["username"]
+            email = response["email"]
+            display_name = response["displayName"]
+
+        except KeyError:
+            logger.warning("Got a KeyError while parsing user information")
+            return None
+
+        try:
+            user = User.objects.get(username=username)
+
+        except User.DoesNotExist:
+            logger.info("User '%s' does not exist in db, creating user...", username)
+            user = User(username=username)
+            user.email = email
+            user.first_name = display_name
+            user.save()
+
+        return user
 
     def get_user(self, user_id: int) -> Optional[AbstractBaseUser]:
         """Fetch the user based on their user id"""
