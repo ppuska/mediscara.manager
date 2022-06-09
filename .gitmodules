@@ -1,0 +1,3 @@
+[submodule "src/editor/fiware"]
+	path = src/editor/fiware
+	url = https://github.com/ppuska/mediscara.fiware
