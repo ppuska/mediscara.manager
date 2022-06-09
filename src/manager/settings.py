@@ -30,7 +30,7 @@ SECRET_KEY = "django-insecure-th-%-#yzy0q54+-yz%aauqmv1!4ayp*@m#pxgy-s8$gkw^-e$z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["109.74.63.236"]
+ALLOWED_HOSTS = ["109.74.63.236", "localhost"]
 
 
 # Application definition
@@ -100,8 +100,6 @@ LOGGING = {
 }
 
 WSGI_APPLICATION = "manager.wsgi.application"
-
-LOGIN_URL = "/login/"
 
 
 # Database
