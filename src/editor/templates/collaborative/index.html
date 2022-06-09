@@ -1,27 +1,25 @@
 {% extends 'editor_base.html' %}
 
 {% block editor_content %}
-<div class="container">
-    <ul class="list-group">
-        <!-- Iterate over object_list -->
-        {% for object in object_list %}
-        <!-- Display Objects -->
-        <li
-            class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
-            Incubator type: {{ object.incubator_type }}
-            <div>
-                <span class="badge badge-primary badge-pill">
-                    Remaining: {{ object.production_count }}
-                </span>
-                <a class="btn btn-outline-danger ml-3" href="?delete={{ object.creation_date }}">Delete</a>
-            </div>
+<ul class="list-group">
+    <!-- Iterate over object_list -->
+    {% for object in object_list %}
+    <!-- Display Objects -->
+    <li
+        class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
+        Incubator type: {{ object.incubator_type }}
+        <div>
+            <span class="badge badge-primary badge-pill">
+                Remaining: {{ object.production_count }}
+            </span>
+            <a class="btn btn-outline-danger ml-3" href="?delete={{ object.creation_date }}">Delete</a>
+        </div>
 
-        </li>
-        <!-- If object_list is empty  -->
-        {% empty %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">No objects yet.</li>
-        {% endfor %}
-    </ul>
-</div>
+    </li>
+    <!-- If object_list is empty  -->
+    {% empty %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">No objects yet.</li>
+    {% endfor %}
+</ul>
 
 {% endblock %}

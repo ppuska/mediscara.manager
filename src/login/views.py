@@ -16,6 +16,8 @@ def index(request: HttpRequest):
     if request.user.is_authenticated:
         return redirect("home/")  # redirect them back to home
 
+    login_failed = False
+
     if request.method == "POST":
         form = LoginForm(request.POST)
 
@@ -35,6 +37,8 @@ def index(request: HttpRequest):
 
                 return redirect(redirect_to)
 
+            login_failed = True
+
     # create context for keyrock auth request
     keyrock_url = f'{os.getenv("KEYROCK_URL")}/oauth2/authorize'
     server_ip = os.getenv("HOST_IP")
@@ -52,6 +56,11 @@ def index(request: HttpRequest):
     form = LoginForm()
 
     # create context
-    context = {"login_form": form, "keyrock_url": keyrock.url, "grafana_url": f"{server_ip}:3000"}
+    context = {
+        "login_form": form,
+        "keyrock_url": keyrock.url,
+        "grafana_url": f"{server_ip}:3000",
+        "login_failed": login_failed,
+    }
 
     return render(request, "login/index.html", context)

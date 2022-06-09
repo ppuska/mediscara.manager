@@ -8,6 +8,9 @@
   <section class="w-100 p-4 d-flex justify-content-center pb-4">
     <form style="width: 22rem;" method="post">
       <h2 class="mb-4">Log in to view production</h2>
+      {% if login_failed %}
+      <div class="alert alert-danger fade show">Invalid username or password</div>
+      {% endif %}
       {% csrf_token %}
       {% crispy login_form %}
     </form>

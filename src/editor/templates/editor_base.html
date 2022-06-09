@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
-{% block editor_content %}
-{% endblock %}
+<div class="container overflow">
+    {% block editor_content %}
+    {% endblock %}
+</div>
 
 {% load crispy_forms_tags %}
 
-<nav class="navbar fixed-bottom navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-blend fixed-bottom navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <h1 class="navbar-brand">Editor Mode</h1>
         <div class="navbar navbar-collapse">
@@ -15,20 +16,6 @@
                 {% csrf_token %}
                 {% crispy collab_form %}
             </form>
-            <!--<ul class="navbar-nav me-auto">
-                <li class="nav-item mx-1 mb-2 mb-lg-0">
-                    <form class="navbar-form" method="post">
-                        <input type="text" class="form-control" placeholder="Incubator type">
-                    </form>
-                </li>
-                <li class="nav-item mx-1">
-                    <form class="navbar-form" method="post">
-                        <input type="number" class="form-control" placeholder="Production count">
-                    </form>
-                </li>
-            </ul>
-        </div> -->
-            <!-- <button class="btn btn-primary btn-light" type="submit">Add new oder</button> -->
         </div>
 </nav>
 {% endblock %}

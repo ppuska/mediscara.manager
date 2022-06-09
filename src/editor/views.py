@@ -5,7 +5,7 @@ from typing import Any
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.views.generic.list import ListView
+from django.views import View
 
 from .fiware.model import CollaborativeOrder, Container
 from .fiware.production import Production
@@ -15,7 +15,7 @@ from .models import CollaborativeModel
 logger = logging.getLogger("django")
 
 
-class Collaborative(ListView, LoginRequiredMixin):
+class Collaborative(LoginRequiredMixin, View):
     """Class for rendering the index page of the collaborative cell manager"""
 
     model = CollaborativeModel
@@ -25,7 +25,8 @@ class Collaborative(ListView, LoginRequiredMixin):
 
         self.__connector = Production(server_url=os.getenv("OCB_URL"))
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def get(self, request: HttpRequest, *_: Any, **__: Any) -> HttpResponse:
+        """Respond to incoming GET requests"""
         delete_order = request.GET.get("delete")
 
         if delete_order is not None:
@@ -40,6 +41,7 @@ class Collaborative(ListView, LoginRequiredMixin):
         return self._render_page(request)
 
     def post(self, request: HttpRequest):
+        """Respond to incoming POST requests (form submits)"""
         form = CollaborativeForm(request.POST)
 
         if form.is_valid():
@@ -63,6 +65,7 @@ class Collaborative(ListView, LoginRequiredMixin):
         return self._render_page(request)
 
     def _render_page(self, request: HttpRequest):
+        """Renders the page contents"""
         collaborative_form = CollaborativeForm()
 
         objects = []
