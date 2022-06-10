@@ -17,6 +17,10 @@ class CollaborativeForm(forms.Form):
         ),
     )
 
+    part_type = forms.CharField(
+        max_length=20, widget=forms.TextInput(attrs={"placeholder": "Part type", "class": "mx-1 mb-2 mb-lg-0"})
+    )
+
     production_count = forms.IntegerField(
         widget=forms.NumberInput(
             attrs={
@@ -34,6 +38,7 @@ class CollaborativeForm(forms.Form):
 
         self.helper.layout = Layout(
             InlineField("inc_type"),
+            InlineField("part_type"),
             InlineField("production_count"),
             ButtonHolder(Submit("add", "Add order", css_class="btn-light")),
         )

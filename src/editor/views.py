@@ -6,19 +6,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
+from fiware.model import CollaborativeOrder
+from fiware.production import Production
 
-from .fiware.model import CollaborativeOrder, Container
-from .fiware.production import Production
 from .forms import CollaborativeForm
-from .models import CollaborativeModel
 
 logger = logging.getLogger("django")
 
 
 class Collaborative(LoginRequiredMixin, View):
     """Class for rendering the index page of the collaborative cell manager"""
-
-    model = CollaborativeModel
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -27,14 +24,14 @@ class Collaborative(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest, *_: Any, **__: Any) -> HttpResponse:
         """Respond to incoming GET requests"""
-        delete_order = request.GET.get("delete")
+        delete_id = request.GET.get("delete")
 
-        if delete_order is not None:
-            # delete the order with the given creation date
-            logger.info("Deleting order with creation date %s", delete_order)
-            self.__connector.delete_production_order(
-                container_id=Container.get_collaborative_id(), created=delete_order
-            )
+        if delete_id is not None:
+            # delete the order with the given id
+            logger.info("Deleting order with id %s", delete_id)
+            order = CollaborativeOrder()
+            order.id = delete_id
+            self.__connector.delete_production_order(order=order)
 
             return redirect(request.path)
 
@@ -48,7 +45,9 @@ class Collaborative(LoginRequiredMixin, View):
             logger.info("Form is valid")
             success = self.__connector.new_production_order(
                 order=CollaborativeOrder(
-                    incubator_type=form.cleaned_data["inc_type"], count=form.cleaned_data["production_count"]
+                    incubator_type=form.cleaned_data["inc_type"],
+                    part_type=form.cleaned_data["part_type"],
+                    count=form.cleaned_data["production_count"],
                 )
             )
 
@@ -68,11 +67,7 @@ class Collaborative(LoginRequiredMixin, View):
         """Renders the page contents"""
         collaborative_form = CollaborativeForm()
 
-        objects = []
-        container = self.__connector.load_production_orders(Container.get_collaborative_id())
-
-        for entity in container.order_list:
-            objects.append(CollaborativeModel.create_from_dataclass(entity))
+        objects = self.__connector.load_production_orders(order=CollaborativeOrder)
 
         context = {
             "collab_form": collaborative_form,

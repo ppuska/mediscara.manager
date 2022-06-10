@@ -1,25 +1,48 @@
-{% extends 'editor_base.html' %}
+{% extends 'base.html' %}
 
-{% block editor_content %}
-<ul class="list-group">
-    <!-- Iterate over object_list -->
-    {% for object in object_list %}
-    <!-- Display Objects -->
-    <li
-        class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
-        Incubator type: {{ object.incubator_type }}
-        <div>
-            <span class="badge badge-primary badge-pill">
-                Remaining: {{ object.production_count }}
-            </span>
-            <a class="btn btn-outline-danger ml-3" href="?delete={{ object.creation_date }}">Delete</a>
+{% block content %}
+<div class="container overflow-auto">
+    <ul class="list-group">
+        <!-- Iterate over object_list -->
+        {% for object in object_list %}
+        <!-- Display Objects -->
+        <li
+            class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-row">
+                <div class="p-2">
+                    Incubator type: {{ object.incubator_type }}
+                </div>
+                <div class="p-2">
+                    Part type: {{ object.part_type }}
+                </div>
+            </div>
+
+            <div>
+                <span class="badge badge-primary badge-pill">
+                    Remaining: {{ object.count }}
+                </span>
+                <a class="btn btn-outline-danger ml-3" href="?delete={{ object.id }}">Delete</a>
+            </div>
+
+        </li>
+        <!-- If object_list is empty  -->
+        {% empty %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">No objects yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% load crispy_forms_tags %}
+
+<nav class="navbar navbar-blend fixed-bottom navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <h1 class="navbar-brand">Editor Mode</h1>
+        <div class="navbar navbar-collapse">
+            <form class="navbar-form form-inline" method="post">
+                {% csrf_token %}
+                {% crispy collab_form %}
+            </form>
         </div>
-
-    </li>
-    <!-- If object_list is empty  -->
-    {% empty %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">No objects yet.</li>
-    {% endfor %}
-</ul>
+</nav>
 
 {% endblock %}
