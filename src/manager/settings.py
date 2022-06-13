@@ -38,7 +38,6 @@ ALLOWED_HOSTS = ["109.74.63.236", "localhost"]
 INSTALLED_APPS = [
     "home",
     "login",
-    "logout",
     "editor",
     "crispy_forms",
     "django.contrib.admin",
