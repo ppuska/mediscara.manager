@@ -1,34 +1,29 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
 <div class="container overflow-auto">
     <ul class="list-group">
-        <!-- Iterate over object_list -->
+
         {% for object in object_list %}
-        <!-- Display Objects -->
-        <li
-            class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
+        <li class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
             <div class="d-flex flex-row">
                 <div class="p-2">
-                    Incubator type: {{ object.incubator_type }}
-                </div>
-                <div class="p-2">
-                    Part type: {{ object.part_type }}
+                    Housing type: {{ object.housing_type }}
                 </div>
             </div>
-
             <div>
                 <span class="badge badge-primary badge-pill">
                     Remaining: {{ object.remaining }}
                 </span>
                 <a class="btn btn-outline-danger ml-3" href="?delete={{ object.id }}">Delete</a>
             </div>
-
         </li>
-        <!-- If object_list is empty  -->
+
         {% empty %}
         <li class="list-group-item d-flex justify-content-between align-items-center">No objects yet.</li>
         {% endfor %}
+
     </ul>
 </div>
 
@@ -46,4 +41,4 @@
     </div>
 </nav>
 
-{% endblock %}
+{% endblock content %}

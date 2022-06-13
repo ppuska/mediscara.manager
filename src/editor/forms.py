@@ -42,3 +42,38 @@ class CollaborativeForm(forms.Form):
             InlineField("production_count"),
             ButtonHolder(Submit("add", "Add order", css_class="btn-light")),
         )
+
+
+class IndustrialForm(forms.Form):
+    """Form class for the industrial editor bottom navigation bar"""
+
+    type = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Housing type",
+                "class": "mx-1 mb-2 mb-lg-0",
+            }
+        ),
+    )
+
+    production_count = forms.IntegerField(
+        widget=forms.NumberInput(
+            attrs={
+                "placeholder": "Production count",
+                "class": "mx-1 mb-2 mb-lg-0",
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.form_show_labels = False
+
+        self.helper.layout = Layout(
+            InlineField("type"),
+            InlineField("production_count"),
+            ButtonHolder(Submit("add", "Add order", css_class="btn-light")),
+        )
