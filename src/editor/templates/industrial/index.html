@@ -6,24 +6,27 @@
     <ul class="list-group">
 
         {% for object in object_list %}
-        <li class="list-group-item {% if object.active %} active {% endif %} d-flex justify-content-between align-items-center">
+        <li class="list-group-item {% if object.active %} list-group-item-primary {% endif %} d-flex justify-content-between align-items-center">
             <div class="d-flex flex-row">
                 <div class="p-2">
                     Housing type: {{ object.housing_type }}
                 </div>
             </div>
-            <div>
-                <span class="badge badge-primary badge-pill">
-                    Remaining: {{ object.remaining }}
-                </span>
+
+            <div class="d-flex flex-row">
+                <p class="my-2 mr-3">
+                    Production count <span class="badge badge-primary">{{ object.count }}</span>
+                </p>
+                <p class="my-2">
+                    Remaining <span class="badge badge-info">{{ object.remaining }}</span>
+                </p>
                 <a class="btn btn-outline-danger ml-3" href="?delete={{ object.id }}">Delete</a>
             </div>
         </li>
-
+        <!-- If object_list is empty  -->
         {% empty %}
         <li class="list-group-item d-flex justify-content-between align-items-center">No objects yet.</li>
         {% endfor %}
-
     </ul>
 </div>
 
