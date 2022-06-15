@@ -68,10 +68,7 @@ class Collaborative(LoginRequiredMixin, View):
 
         objects = self.__connector.load_production_orders(order=CollaborativeOrder)
 
-        context = {
-            "collab_form": collaborative_form,
-            "object_list": objects,
-        }
+        context = {"collab_form": collaborative_form, "object_list": objects}
 
         return render(request, "collaborative/index.html", context)
 

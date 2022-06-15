@@ -1,24 +1,33 @@
 import os
 from urllib.parse import urlencode
 
-from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
+from django.views import View
 from requests import Request
 
 from .forms import LoginForm
 
 
-def index(request: HttpRequest):
-    """Main index page of the Home screen"""
-    # check if the user is authenticated or not
-    if request.user.is_authenticated:
-        return redirect("home/")  # redirect them back to home
+class Index(View):
+    """Main index page of the Login screen"""
 
-    login_failed = False
+    def get(self, request: HttpRequest):
+        """Respond to GET requests"""
+        # process logout request
+        if request.GET.get("logged_out") is not None:
+            logout(request)
+            return self._render_page(request, login_failed=False, logged_out=True)
 
-    if request.method == "POST":
+        # check if the user is signed in
+        if request.user.is_authenticated:
+            return redirect("/home/")  # redirect back to homepage
+
+        return self._render_page(request, login_failed=False, logged_out=False)
+
+    def post(self, request: HttpRequest):
+        """Respond to POST requests"""
         form = LoginForm(request.POST)
 
         if form.is_valid():
@@ -37,30 +46,38 @@ def index(request: HttpRequest):
 
                 return redirect(redirect_to)
 
-            login_failed = True
+        return self._render_page(request, login_failed=True, logged_out=False)
 
-    # create context for keyrock auth request
-    keyrock_url = f'{os.getenv("KEYROCK_URL")}/oauth2/authorize'
-    server_ip = os.getenv("HOST_IP")
+    def _render_page(self, request: HttpRequest, login_failed: bool, logged_out: bool):
+        """Renders the page
 
-    params = {
-        "response_type": "token",
-        "client_id": os.getenv("CLIENT_ID"),
-        "state": "xyz",
-        "redirect_uri": f"{server_ip}:8000/home",
-    }
+        Args:
+            login_failed (bool): if the user has failed the login form
+            logged_out (bool): if the user has completed the logout process
+        """
+        # create context for keyrock auth request
+        keyrock_url = f'{os.getenv("KEYROCK_URL")}/oauth2/authorize'
+        server_ip = os.getenv("HOST_IP")
 
-    keyrock = Request("POST", url=keyrock_url, params=urlencode(params, safe="/:")).prepare()
+        params = {
+            "response_type": "token",
+            "client_id": os.getenv("CLIENT_ID"),
+            "state": "xyz",
+            "redirect_uri": f"{server_ip}:8000/home",
+        }
 
-    # create context for the login form
-    form = LoginForm()
+        keyrock = Request("POST", url=keyrock_url, params=urlencode(params, safe="/:")).prepare()
 
-    # create context
-    context = {
-        "login_form": form,
-        "keyrock_url": keyrock.url,
-        "grafana_url": f"{server_ip}:3000",
-        "login_failed": login_failed,
-    }
+        # create context for the login form
+        form = LoginForm()
 
-    return render(request, "login/index.html", context)
+        # create context
+        context = {
+            "login_form": form,
+            "keyrock_url": keyrock.url,
+            "grafana_url": f"{server_ip}:3000",
+            "login_failed": login_failed,
+            "logged_out": logged_out,
+        }
+
+        return render(request, "login/index.html", context)
