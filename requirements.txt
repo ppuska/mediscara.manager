@@ -1,1 +1,7 @@
+django >= 4.0.5
+requests >= 2.27.1
+python_dotenv >= 0.20.0
+django_crispy_forms >= 1.14.0
+
+
 -e src/editor/fiware  # TODO remove editable flag
