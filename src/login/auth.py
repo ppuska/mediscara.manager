@@ -44,8 +44,6 @@ class KeyRockBackend(BaseBackend):
 
             token = response.get("access_token")
 
-            print(response)
-
             if token is not None:
                 return self.__get_user_from_access_token(access_token=token)
 
