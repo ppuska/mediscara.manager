@@ -1,0 +1,119 @@
+---
+version: "3"
+
+services:
+  mongo:
+    image: mongo:latest
+    command: --nojournal
+    networks:
+      - default
+    volumes:
+      - mongo-storage:/var/lib/mongo
+
+  orion:
+    image: fiware/orion:latest
+    container_name: orion-container
+    ports:
+      - "1026:1026"
+    networks:
+      - default
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mongo
+    command: -dbhost mongo
+    healthcheck:
+      test: curl --fail -s http://orion:1026/version || exit 1
+
+  crate-db:
+    image: crate:3.3.2
+    ports:
+      - "4200:4200"
+      - "4300:4300"
+      - "5432:5432"
+    networks:
+      - default
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  quantum-leap:
+    image: fiware/quantum-leap:latest
+    ports:
+      - "8668:8668"
+    depends_on:
+      - crate-db
+    networks:
+      - default
+    environment:
+      CRATE_HOST: crate-db
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - crate-db
+    networks:
+      - default
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-worldmap-panel
+    volumes:
+      - grafana-storage:/var/lib/grafana
+  # Identity Management
+
+  keyrock:
+    image: fiware/idm:7.6.0
+    container_name: fiware-keyrock
+    hostname: keyrock
+    networks:
+      default:
+        ipv4_address: 172.19.1.11
+    depends_on:
+      - mysql-db
+    ports:
+      - '8088:8088'
+      - '8089:8089'
+    environment:
+      - DEBUG=idm:*
+      - IDM_DB_HOST=mysql-db
+      - IDM_HOST=http://localhost:8088
+      - IDM_PORT=8088
+      - IDM_DB_PASS=secret
+      - IDM_DB_USER=root
+      - IDM_ADMIN_USER=keyrockadmin
+      - IDM_ADMIN_EMAIL=kadmin@mediscara.com
+      - IDM_ADMIN_PASS=1234
+      - IDM_EMAIL_HOST=mailer
+      - IDM_EMAIL_PORT=25
+
+  mysql-db:
+    restart: always
+    image: mysql:5.7
+    hostname: mysql-db
+    container_name: db-mysql
+    expose:
+      - '3306'
+    networks:
+      default:
+        ipv4_address: 172.19.1.9
+    environment:
+      # Development use only
+      # Use Docker Secrets for Sensitive Data
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_ROOT_HOST=172.19.1.11
+    volumes:
+      - mysql-db:/var/lib/mysql
+
+volumes:
+  grafana-storage: ~
+  mongo-storage: ~
+  mysql-db: ~
+  keyrock-users: ~
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.19.1.0/16
