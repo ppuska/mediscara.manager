@@ -25,8 +25,16 @@
       {% crispy login_form %}
     </form>
   </section>
+  {% load static %}
+  <section class="w-100 d-flex justify-content-center">
+    <p>
+      Or sign in using
+    </p>
+  </section>
   <section class="w-100 p-4 d-flex justify-content-center pb-4">
-    <a class="btn btn-primary btn-block mb-4" style="width: 22rem;" href="{{ keyrock_url }}">Sign in using KeyRock</a>
+    <a class="btn btn-outline-primary btn-block mb-4" style="width: 22rem;" href="{{ keyrock_url }}">
+      <img src="{% static 'keyrock.png' %}" width="250">
+    </a>
   </section>
 </div>
 
